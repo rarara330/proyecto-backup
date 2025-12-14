@@ -213,7 +213,7 @@
 
 
         // DIRECTORIO DE DESCARGAS (Usando la ruta pública acordada)
-	$HOME_DIR = "/var/www/html/pepe";
+	$HOME_DIR = "/var/www/html/Descargas/pepe";
         
 
         // --- 2. Construcción del Comando ---
@@ -291,7 +291,7 @@
 
             
 
-            $mega_script_path = "/var/www/html/proyecto-pepe/codigo_fuente/mega.sh"; 
+            $mega_script_path = "/var/www/ProyectoDescargadorWeb/codigo_fuente/mega.sh"; 
 
             
 

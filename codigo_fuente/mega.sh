@@ -5,7 +5,7 @@
 # =======================================================
 
 # 1. Variables de Configuración
-LOCAL_DIR="/var/www/html/pepe"
+LOCAL_DIR="/var/www/html/Descargas/pepe"
 REMOTE_DIR="/pepe"
 # Asegúrate de que este usuario tenga la sesión de MEGA iniciada (con mega-login)
 USUARIO_REAL="raul" 
