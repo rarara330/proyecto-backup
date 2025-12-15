@@ -38,4 +38,4 @@ else
     echo "⚠️ Advertencia: No encontré 'backup_script.sh' en la carpeta actual."
 fi
 
-echo "⚠️ IMPORTANTE: Recuerda ejecutar 'mega-login tu@email.com tu_pass' manualmente al terminar."
+echo "⚠️ IMPORTANTE: Recuerda ejecutar 'mega-login tu@email.com password' manualmente al terminar."
