@@ -32,20 +32,6 @@ else
     exit 1
 fi
 
-# 4. MOVER EL SCRIPT (Lo que faltaba)
-SCRIPT_ORIGEN="./backup_script.sh"
-SCRIPT_DESTINO="/usr/local/bin/subir_pepe_mega.sh"
-
-if [ -f "$SCRIPT_ORIGEN" ]; then
-    echo "Moviendo script de backup a $SCRIPT_DESTINO..."
-    sudo cp "$SCRIPT_ORIGEN" "$SCRIPT_DESTINO"
-    sudo chmod +x "$SCRIPT_DESTINO"
-    echo "✅ Script de backup instalado y con permisos de ejecución."
-else
-    echo "⚠️ Advertencia: No se encontró '$SCRIPT_ORIGEN' en la carpeta actual."
-    echo "Asegúrate de que el archivo existe para poder moverlo."
-fi
-
 echo "-------------------------------------------------------"
 echo "PROCESO FINALIZADO"
 echo "Recuerda loguearte con: mega-login tu@email.com"
