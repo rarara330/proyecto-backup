@@ -44,47 +44,6 @@ elif [ -f "/usr/local/bin/spotdl" ]; then
 fi
 echo "✅ SpotDL listo."
 
-# 6. Instalar MEGAcmd (USANDO REPOSITORIOS APT OFICIALES)
-# 6. Instalar MEGAcmd (Detección Auto de Debian/Ubuntu)
-echo "☁️  Verificando e Instalando MEGAcmd..."
-
-if dpkg -l | grep -q megacmd; then
-    echo "✅ MEGAcmd ya está instalado en el sistema. Saltando instalación."
-else
-    echo "   -> Configurando el repositorio de MEGA..."
-    
-    # Instalamos lsb-release si no existe y detectamos el ID de la distribución
-    sudo apt install -y lsb-release > /dev/null 2>&1
-    DISTRO_ID=$(lsb_release -i -s)
-    DISTRO_CODE=$(lsb_release -c -s)
-    
-    REPO_URL=""
-    
-    if [ "$DISTRO_ID" == "Ubuntu" ]; then
-        # Usa el nombre en clave de Ubuntu (ej: jammy, noble)
-        REPO_URL="deb https://mega.nz/linux/repo/xUbuntu_${DISTRO_CODE}/amd64/ ./"
-    elif [ "$DISTRO_ID" == "Debian" ]; then
-        # Para Debian, usamos el código numérico (ej: 12, 11)
-        DEBIAN_VERSION=$(lsb_release -r -s | cut -d'.' -f1) # Corta '12' de '12.x'
-        REPO_URL="deb https://mega.nz/linux/repo/Debian_${DEBIAN_VERSION}/amd64/ ./"
-    else
-        echo "   ❌ ERROR: Distribución no soportada ($DISTRO_ID). Intente instalación manual de MEGAcmd."
-        echo "✅ MEGAcmd instalado correctamente. (Ignorado debido a error)"
-        return 0 # Finaliza la función de instalación de MEGA
-    fi
-
-    # 1. Descarga la clave del repositorio (Método obsoleto pero funcional)
-    sudo wget -O- https://mega.nz/linux/MEGACMD-PUBLIC-KEY.ASC | sudo apt-key add - > /dev/null 2>&1
-
-    # 2. Añade el repositorio APT
-    echo "$REPO_URL" | sudo tee /etc/apt/sources.list.d/megacmd.list > /dev/null
-
-    # 3. Actualiza e instala
-    sudo apt update -qq
-    sudo apt install -y megacmd
-    
-    echo "✅ MEGAcmd instalado correctamente."
-fi
 echo "---------------------------------------------------------"
 echo "✨ FASE 2 COMPLETADA."
 echo "---------------------------------------------------------"
