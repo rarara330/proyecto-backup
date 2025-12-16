@@ -3,7 +3,7 @@
 
 USUARIO_WEB="www-data"
 USUARIO_SISTEMA="wolf"
-NUEVA_DIR_DESCARGAS="/var/www/html/Descargas/pepe"
+NUEVA_DIR_DESCARGAS="/var/www/html/Descargas"
 DIR_BASE="/var/www/ProyectoDescargadorWeb"
 
 echo "==================================================="
@@ -11,7 +11,6 @@ echo "      INICIANDO INSTALACIÓN DEL DESCARGADOR        "
 echo "==================================================="
 
 # Instalar Apache y PHP (y la librería que conecta ambos)
-# -y confirma automáticamente las preguntas de "sí/no"
 sudo apt-get install -y apache2 php libapache2-mod-php
 
 #Mover directorio
