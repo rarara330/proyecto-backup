@@ -38,8 +38,15 @@ sudo cp $DIR_BASE/codigo_fuente/descargador.php /var/www/html/Descargador.php
 sudo chown $USUARIO_WEB:$USUARIO_WEB /var/www/html/Descargador.php
 echo "✅ Frontend PHP copiado."
 
+# 4. Configurar sudoers para ejecución asíncrona (mega.sh)
+sudo sed -i '/mega.sh/d' /etc/sudoers
+echo "$LINEA_SUDO" | sudo tee -a /etc/sudoers > /dev/null
+echo "✅ Sudoers configurado: www-data puede ejecutar mega.sh como root sin contraseña."
+bash $DIR_BASE/scripts/03_integrar_nube.sh
+
+
 echo "====================================================================================="
-echo "🎉 INSTALACIÓN LOCAL DEL DESCRAGADOR COMPLETADA."
+echo "🎉 INSTALACIÓN DEL DESCRAGADOR COMPLETADA."
 echo "====================================================================================="
 echo "⚠️ PASO FINAL REQUERIDO: Iniciar sesión en MEGAcmd"
 echo "Para que la subida a MEGA funcione, el usuario '$USUARIO_SISTEMA' debe iniciar sesión."
