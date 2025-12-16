@@ -1,12 +1,4 @@
 #!/bin/bash
-# 4. Configurar sudoers para ejecución asíncrona (mega.sh)
-echo "-> 4. Configurando permisos Sudoers para www-data..."
-LINEA_SUDO="www-data ALL=(root) NOPASSWD: /var/www/ProyectoDescargadorWeb/codigo_fuente/mega.sh"
-# Elimina líneas anteriores si existen, luego añade la nueva línea
-sudo sed -i '/mega.sh/d' /etc/sudoers
-echo "$LINEA_SUDO" | sudo tee -a /etc/sudoers > /dev/null
-echo "✅ Sudoers configurado: www-data puede ejecutar mega.sh como root sin contraseña."
-
 # 1. Detectar Distribución y Versión
 OS=$(lsb_release -is 2>/dev/null || cat /etc/os-release | grep -w "ID" | cut -d= -f2 | tr -d '"')
 VER=$(lsb_release -rs 2>/dev/null || cat /etc/os-release | grep -w "VERSION_ID" | cut -d= -f2 | tr -d '"')
