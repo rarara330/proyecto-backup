@@ -1,41 +1,35 @@
 #!/bin/bash
-echo "--- [3/3] Integrando MEGA y Scripts de Backup ---"
 
-# 1. Instalar megacmd (Detectando versión o usando genérico)
-# Nota: La instalación de MEGA varía según la versión de Ubuntu.
-# Este es un método genérico seguro instalando el .deb oficial
-# pero lo más fiable es asegurar que `wget` está instalado.
+# 1. Detectar Distribución y Versión
+OS=$(lsb_release -is 2>/dev/null || cat /etc/os-release | grep -w "ID" | cut -d= -f2 | tr -d '"')
+VER=$(lsb_release -rs 2>/dev/null || cat /etc/os-release | grep -w "VERSION_ID" | cut -d= -f2 | tr -d '"')
 
-sudo apt-get install -y wget
+echo "Detectado: $OS versión $VER"
 
-# Descargar e instalar megacmd (versión para Ubuntu genérica o 22.04/24.04 según corresponda)
-# Aquí usamos el autoinstalador oficial o el paquete directo.
-# Para simplificar y asegurar compatibilidad, añadimos el repo oficial:
-
-if ! command -v mega-cmd &> /dev/null; then
-    echo "Instalando MEGA CMD..."
-    # Se necesita curl y gnupg
-    sudo apt-get install -y curl gnupg2
-    
-    # Añadir repo oficial (Ejemplo para Ubuntu genérico, ajusta si sabes tu versión exacta)
-    # Una forma segura es descargar el .deb directo si el repo falla, pero intentemos esto:
-    wget https://mega.nz/linux/repo/xUbuntu_22.04/amd64/megacmd-xUbuntu_22.04_amd64.deb
-    sudo apt install ./megacmd-xUbuntu_22.04_amd64.deb -y
-    rm megacmd-xUbuntu_22.04_amd64.deb
+# 2. Construir la URL según el sistema
+if [ "$OS" == "Ubuntu" ]; then
+    URL_OS="xUbuntu_$VER"
+elif [ "$OS" == "debian" ]; then
+    # Debian necesita el formato Debian_11.0 o Debian_12.0
+    # Forzamos un decimal si no lo tiene
+    [[ "$VER" != *.* ]] && VER_FIX="${VER}.0" || VER_FIX="$VER"
+    URL_OS="Debian_$VER_FIX"
 else
-    echo "MEGA CMD ya está instalado."
+    echo "❌ Sistema no soportado automáticamente."
+    exit 1
 fi
 
-# 2. Mover el script de backup a una carpeta segura (ej: /usr/local/bin o home)
-SCRIPT_BACKUP="./backup_script.sh"
-DESTINO_SCRIPT="/usr/local/bin/subir_pepe_mega.sh"
+URL="https://mega.nz/linux/repo/${URL_OS}/amd64/megacmd-${URL_OS}_amd64.deb"
 
-if [ -f "$SCRIPT_BACKUP" ]; then
-    sudo cp "$SCRIPT_BACKUP" "$DESTINO_SCRIPT"
-    sudo chmod +x "$DESTINO_SCRIPT"
-    echo "✅ Script de backup instalado en: $DESTINO_SCRIPT"
+# 3. Instalación
+echo "Descargando desde: $URL"
+wget "$URL" -O /tmp/megacmd.deb
+
+if [ -f /tmp/megacmd.deb ]; then
+    sudo apt update
+    sudo apt install -y /tmp/megacmd.deb
+    rm /tmp/megacmd.deb
+    echo "✅ Instalación completada en $OS"
 else
-    echo "⚠️ Advertencia: No encontré 'backup_script.sh' en la carpeta actual."
+    echo "❌ No se pudo encontrar el paquete para tu versión específica en MEGA."
 fi
-
-echo "⚠️ IMPORTANTE: Recuerda ejecutar 'mega-login tu@email.com password' manualmente al terminar."
