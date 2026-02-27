@@ -1,8 +1,7 @@
 #!/bin/bash
-# Script de Instalación y Configuración Total
+# Script de Instalación y Configuración Total - VERSIÓN ROBUSTA
 
 USUARIO_WEB="www-data"
-USUARIO_SISTEMA="wolf"
 NUEVA_DIR_DESCARGAS="/var/www/html/Descargas"
 DIR_BASE="/var/www/DescargadorWeb"
 
@@ -10,47 +9,54 @@ echo "==================================================="
 echo "      INICIANDO INSTALACIÓN DEL DESCARGADOR        "
 echo "==================================================="
 
-# 1. Instalar Apache y PHP
-sudo apt-get update
-sudo apt-get install -y apache2 php libapache2-mod-php
+# 0. Asegurar privilegios de root
+if [ "$EUID" -ne 0 ]; then
+  echo "Por favor, ejecuta este script como root (ej: sudo ./instalar.sh)"
+  exit 1
+fi
 
-# 2. Corregir y Mover el directorio del proyecto
-# Obtenemos la ruta de donde está el script actualmente
-DIR_ACTUAL=$(pwd)
+# 1. Obtener la ruta correcta (donde está este script)
+DIR_ACTUAL="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
-echo "-> Organizando archivos en $DIR_BASE..."
-sudo mkdir -p $DIR_BASE
-# Copiamos el contenido de la carpeta actual a la carpeta base
-sudo cp -r ./* $DIR_BASE/
-echo "✅ Archivos movidos a $DIR_BASE"
+# 2. Preparar el sistema base
+echo "-> 1. Instalando Apache, PHP y dependencias básicas..."
+apt-get update -qq
+apt-get install -y apache2 php libapache2-mod-php php-curl unzip lsb-release curl wget git
 
-# 3. Ejecutar dependencias
-echo "-> 3. Ejecutando scripts de dependencias y herramientas..."
-# Aseguramos permisos de ejecución
-sudo chmod +x $DIR_BASE/scripts/*.sh
+# 3. Mover archivos al directorio de producción
+echo "-> 2. Organizando archivos en $DIR_BASE..."
+mkdir -p $DIR_BASE
+# Copiamos usando la ruta absoluta detectada, asegurando que copiamos el contenido
+cp -r "$DIR_ACTUAL"/* $DIR_BASE/
+chmod +x $DIR_BASE/scripts/*.sh
+echo "✅ Archivos copiados a $DIR_BASE"
+
+# 4. Ejecutar scripts de dependencias
+echo "-> 3. Ejecutando scripts de herramientas (yt-dlp, spotdl)..."
 bash $DIR_BASE/scripts/01_dependencias.sh
 bash $DIR_BASE/scripts/02_instalacion.sh
 
-# 4. Crear y configurar directorios de descargas
-echo "-> 4. Creando y Configurando Directorios de Descarga..."
-sudo mkdir -p $NUEVA_DIR_DESCARGAS
-sudo chown -R $USUARIO_WEB:$USUARIO_WEB $NUEVA_DIR_DESCARGAS
-sudo chmod -R 777 $NUEVA_DIR_DESCARGAS
-echo "✅ Directorio $NUEVA_DIR_DESCARGAS creado."
+# 5. Configurar Web y Frontend
+echo "-> 4. Configurando Entorno Web..."
+mkdir -p $NUEVA_DIR_DESCARGAS
+# Dar propiedad a Apache sobre las descargas y el código backend
+chown -R $USUARIO_WEB:$USUARIO_WEB $NUEVA_DIR_DESCARGAS $DIR_BASE
+chmod -R 775 $NUEVA_DIR_DESCARGAS
 
-# 5. Copiar Frontend PHP
-echo "-> 5. Copiando frontend PHP a /var/www/html/Descargador.php"
-sudo cp $DIR_BASE/codigo_fuente/descargador.php /var/www/html/Descargador.php
-sudo chown $USUARIO_WEB:$USUARIO_WEB /var/www/html/Descargador.php
-echo "✅ Frontend PHP copiado."
+cp $DIR_BASE/codigo_fuente/descargador.php /var/www/html/Descargador.php
+chown $USUARIO_WEB:$USUARIO_WEB /var/www/html/Descargador.php
+echo "✅ Entorno web configurado."
 
-# 6. Configurar sudoers
-echo "-> 6. Configurando Sudoers..."
+# 6. Sudoers
+echo "-> 5. Configurando Sudoers para $USUARIO_WEB..."
 LINEA_SUDO="$USUARIO_WEB ALL=(ALL) NOPASSWD: $DIR_BASE/scripts/mega.sh"
-sudo sed -i "/$(basename $DIR_BASE)\/scripts\/mega.sh/d" /etc/sudoers
-echo "$LINEA_SUDO" | sudo tee -a /etc/sudoers > /dev/null
+# Eliminar línea anterior si existe para evitar duplicados
+sed -i '\|/scripts/mega.sh|d' /etc/sudoers
+echo "$LINEA_SUDO" | tee -a /etc/sudoers > /dev/null
 echo "✅ Sudoers configurado."
 
+# 7. Integrar Nube (MEGA)
+echo "-> 6. Instalando integración en la nube..."
 bash $DIR_BASE/scripts/03_integrar_nube.sh
 
 echo "====================================================================================="
