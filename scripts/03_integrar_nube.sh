@@ -9,9 +9,9 @@ echo "--- [Iniciando] Sistema detectado: $OS $VER ---"
 if [[ "$OS" =~ [Uu]buntu ]]; then
     URL_OS="xUbuntu_$VER"
 elif [[ "$OS" =~ [Dd]ebian ]]; then
-    # Debian en MEGA usa formato X.0 (ej: Debian_11.0)
-    [[ "$VER" != *.* ]] && VER_FIX="${VER}.0" || VER_FIX="$VER"
-    URL_OS="Debian_$VER_FIX"
+    # MEGA usa formato Debian_12, no Debian_12.0
+    VER_CLEAN=$(echo $VER | cut -d. -f1)
+    URL_OS="Debian_$VER_CLEAN"
 else
     echo "❌ Sistema $OS no soportado automáticamente por este script."
     exit 1
@@ -22,16 +22,17 @@ URL="https://mega.nz/linux/repo/${URL_OS}/amd64/megacmd-${URL_OS}_amd64.deb"
 # 3. Instalación de MEGA
 echo "Descargando MEGA desde: $URL"
 if wget -q "$URL" -O /tmp/megacmd.deb; then
-    sudo apt-get update
-    sudo apt-get install -y /tmp/megacmd.deb
+    apt-get install -y /tmp/megacmd.deb
     rm /tmp/megacmd.deb
     echo "✅ MEGA CMD instalado correctamente."
 else
-    echo "❌ Error: No se pudo descargar el paquete. Verifica que MEGA soporte la versión $URL_OS"
+    echo "❌ Error: No se pudo descargar el paquete desde $URL"
     exit 1
 fi
 
 echo "-------------------------------------------------------"
 echo "PROCESO FINALIZADO"
-echo "Recuerda loguearte con: mega-login tu@email.com password"
+echo "Recuerda loguearte con el usuario wolf usando:"
+echo "sudo su -s /bin/bash wolf"
+echo "mega-login tu@email.com password"
 echo "-------------------------------------------------------"
